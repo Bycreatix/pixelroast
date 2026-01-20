@@ -3,17 +3,34 @@ import { motion } from 'framer-motion';
 import { Zap, Flame, Target, Sparkles, ArrowRight, Loader2, AlertCircle } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
-import { roastWebsite } from '../services/api';
+import { useAuth } from '../contexts/AuthContext';
+import { AuthModal } from '../components/ui/AuthModal';
+import { UpgradeModal } from './UpgradeModal';
+import { saveScanHistory } from '../services/api';
 
 export const HeroSection = ({ onRoastComplete }) => {
     const [url, setUrl] = useState('');
     const [isHovering, setIsHovering] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
+    const [showAuthModal, setShowAuthModal] = useState(false);
+    const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+
+    const { user } = useAuth();
+    // Get token for API calls
+    const getToken = async () => {
+        const { data } = await import('../lib/supabase').then(m => m.supabase.auth.getSession());
+        return data.session?.access_token;
+    };
 
     const handleRoast = async () => {
         if (!url.trim()) {
             setError('Please enter a URL');
+            return;
+        }
+
+        if (!user) {
+            setShowAuthModal(true);
             return;
         }
 
@@ -27,8 +44,25 @@ export const HeroSection = ({ onRoastComplete }) => {
         setError(null);
 
         try {
-            const result = await roastWebsite(targetUrl, 'gen_z');
+            const token = await getToken();
+            const result = await roastWebsite(targetUrl, 'gen_z', token);
             console.log('Roast result:', result);
+
+            // Save to history
+            try {
+                await saveScanHistory({
+                    url: targetUrl,
+                    roast_data: result,
+                    personality: 'gen_z'
+                }, token);
+            } catch (historyError) {
+                if (historyError.message === 'STORAGE_LIMIT_REACHED') {
+                    setShowUpgradeModal(true);
+                } else {
+                    console.error('Failed to save history:', historyError);
+                }
+            }
+
             if (onRoastComplete) {
                 onRoastComplete(result);
             }
@@ -230,6 +264,20 @@ export const HeroSection = ({ onRoastComplete }) => {
                     ))}
                 </motion.div>
             </div>
+            {/* Modals */}
+            <AuthModal
+                isOpen={showAuthModal}
+                onClose={() => setShowAuthModal(false)}
+                onSuccess={() => {
+                    setShowAuthModal(false);
+                    handleRoast(); // Retry roast after login
+                }}
+            />
+
+            <UpgradeModal
+                isOpen={showUpgradeModal}
+                onClose={() => setShowUpgradeModal(false)}
+            />
         </section>
     );
 };

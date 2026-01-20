@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { HeroSection } from '../features/HeroSection';
 import { PersonalitySelector } from '../features/PersonalitySelector';
 import { RoastView } from '../features/RoastView';
@@ -7,28 +7,37 @@ import { ClapbackChat } from '../features/ClapbackChat';
 import { AboutSection } from '../features/AboutSection';
 import { PricingSection } from '../features/PricingSection';
 import { Footer } from '../features/Footer';
+import { ScanHistory } from '../features/ScanHistory';
 
 const Home = () => {
+    const [roastResult, setRoastResult] = useState(null);
+
     return (
-        <>
-            <div className="space-y-0">
-                <HeroSection />
-                <PersonalitySelector />
-                <AboutSection />
-                <PricingSection />
+        <div className="space-y-0">
+            <HeroSection onRoastComplete={setRoastResult} />
+            <PersonalitySelector />
+            <AboutSection />
+            <PricingSection />
 
-                {/* Divider */}
-                <div className="h-4 bg-brutalist-black border-y-4 border-white my-0" />
+            {/* Divider */}
+            <div className="h-4 bg-brutalist-black border-y-4 border-white my-0" />
 
-                <RoastView />
-                <section id="resume">
-                    <ResumeUpload />
-                </section>
+            {/* Scan History connects to RoastView via onSelectScan */}
+            <ScanHistory onSelectScan={(scan) => {
+                setRoastResult(scan.roast_data);
+                document.getElementById('roast-view')?.scrollIntoView({ behavior: 'smooth' });
+            }} />
 
-                <ClapbackChat />
-            </div>
+            <RoastView roastData={roastResult} />
+
+            <section id="resume">
+                <ResumeUpload />
+            </section>
+
+            <ClapbackChat />
+
             <Footer />
-        </>
+        </div>
     );
 };
 

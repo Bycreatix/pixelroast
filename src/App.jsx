@@ -1,12 +1,15 @@
 import React from 'react';
 import { Layout } from './components/layout/Layout';
 import Home from './pages/Home';
+import { AuthProvider } from './contexts/AuthContext';
 
 function App() {
   return (
-    <Layout>
-      <Home />
-    </Layout>
+    <AuthProvider>
+      <Layout>
+        <Home />
+      </Layout>
+    </AuthProvider>
   );
 }
 

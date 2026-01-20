@@ -1,10 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ExternalLink, Menu, X, Zap, Flame } from 'lucide-react';
+import { ExternalLink, Menu, X, Zap, Flame, User, LogOut } from 'lucide-react';
+import { useAuth } from '../../contexts/AuthContext';
 
 export const Navbar = () => {
     const [isScrolled, setIsScrolled] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+    // Safely get auth state (optional chaining in case used outside provider)
+    const context = useAuth();
+    const user = context?.user;
+    const signOut = context?.signOut;
 
     useEffect(() => {
         const handleScroll = () => {
@@ -20,6 +26,12 @@ export const Navbar = () => {
             element.scrollIntoView({ behavior: 'smooth' });
         }
         setIsMobileMenuOpen(false);
+    };
+
+    const handleSignOut = async () => {
+        if (signOut) {
+            await signOut();
+        }
     };
 
     const navLinks = [
@@ -58,9 +70,17 @@ export const Navbar = () => {
                             <span className="absolute bottom-0 left-0 w-0 h-1 bg-brutalist-yellow group-hover:w-full transition-all duration-300" />
                         </button>
                     ))}
+                    {user && (
+                        <button
+                            onClick={() => scrollToSection('history')}
+                            className="relative hover:text-brutalist-red transition-colors group flex items-center gap-1"
+                        >
+                            HISTORY
+                        </button>
+                    )}
                 </nav>
 
-                {/* CTA Button */}
+                {/* CTA / User Menu */}
                 <div className="hidden md:flex items-center gap-4">
                     <a
                         href="https://github.com/Bycreatix/pixelroast"
@@ -70,15 +90,33 @@ export const Navbar = () => {
                     >
                         GITHUB <ExternalLink size={16} strokeWidth={3} />
                     </a>
-                    <motion.button
-                        className="btn-brutal-yellow flex items-center gap-2"
-                        whileHover={{ rotate: -2 }}
-                        whileTap={{ scale: 0.95 }}
-                        onClick={() => scrollToSection('hero')}
-                    >
-                        <Zap size={18} strokeWidth={3} />
-                        START ROAST
-                    </motion.button>
+
+                    {user ? (
+                        <div className="flex items-center gap-4">
+                            <div className="flex items-center gap-2 font-bold text-sm bg-gray-100 px-3 py-1 border border-black rounded-full">
+                                <User size={16} />
+                                <span className="max-w-[100px] truncate">{user.email}</span>
+                            </div>
+                            <motion.button
+                                className="btn-brutal-primary px-4 py-2 text-sm flex items-center gap-2 bg-white hover:bg-red-50"
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                                onClick={handleSignOut}
+                            >
+                                <LogOut size={16} />
+                            </motion.button>
+                        </div>
+                    ) : (
+                        <motion.button
+                            className="btn-brutal-yellow flex items-center gap-2"
+                            whileHover={{ rotate: -2 }}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={() => scrollToSection('hero')}
+                        >
+                            <Zap size={18} strokeWidth={3} />
+                            START ROAST
+                        </motion.button>
+                    )}
                 </div>
 
                 {/* Mobile Menu Button */}
@@ -109,12 +147,22 @@ export const Navbar = () => {
                                     {link.label}
                                 </button>
                             ))}
-                            <button
-                                onClick={() => scrollToSection('hero')}
-                                className="btn-brutal-primary mt-2 flex items-center justify-center gap-2"
-                            >
-                                <Zap size={18} /> START ROAST
-                            </button>
+                            {user && (
+                                <button
+                                    onClick={handleSignOut}
+                                    className="text-left font-bold uppercase py-3 px-4 hover:bg-brutalist-black hover:text-white transition-colors border-2 border-brutalist-black flex items-center gap-2"
+                                >
+                                    <LogOut size={18} /> Sign Out ({user.email})
+                                </button>
+                            )}
+                            {!user && (
+                                <button
+                                    onClick={() => scrollToSection('hero')}
+                                    className="btn-brutal-primary mt-2 flex items-center justify-center gap-2"
+                                >
+                                    <Zap size={18} /> START ROAST
+                                </button>
+                            )}
                         </nav>
                     </motion.div>
                 )}

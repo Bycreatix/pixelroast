@@ -624,6 +624,107 @@ async def chat_clapback(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Chat failed: {str(e)}")
 
+class ScanStorageRequest(BaseModel):
+    url: str
+    roast_data: dict
+    personality: str = "gen_z"
+
+# ===========================
+# SCAN HISTORY ENDPOINTS
+# ===========================
+@app.get("/scans")
+async def get_scans(user: dict = Depends(get_current_user)):
+    """Fetch user's scan history."""
+    if not user:
+        raise HTTPException(status_code=401, detail="Authentication required")
+    
+    if not supabase_client:
+        raise HTTPException(status_code=503, detail="Database not configured")
+    
+    try:
+        response = supabase_client.table("scan_history") \
+            .select("*") \
+            .eq("user_id", user["id"]) \
+            .order("created_at", desc=True) \
+            .execute()
+        return response.data
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to fetch scans: {str(e)}")
+
+@app.post("/scans")
+async def save_scan(
+    scan: ScanStorageRequest, 
+    user: dict = Depends(get_current_user)
+):
+    """Save a roast to history with storage limits."""
+    if not user:
+        raise HTTPException(status_code=401, detail="Authentication required")
+    
+    if not supabase_client:
+        raise HTTPException(status_code=503, detail="Database not configured")
+    
+    # Check current usage
+    try:
+        # Get count (inefficient but simple for now)
+        count_response = supabase_client.table("scan_history") \
+            .select("id", count="exact") \
+            .eq("user_id", user["id"]) \
+            .execute()
+        
+        current_count = count_response.count
+        limit = 30 if user.get("is_premium") else 5
+        
+        if current_count >= limit:
+            raise HTTPException(
+                status_code=403, 
+                detail="STORAGE_LIMIT_REACHED"
+            )
+            
+        # Save scan
+        data = {
+            "user_id": user["id"],
+            "url": scan.url,
+            "roast_data": scan.roast_data,
+            "personality": scan.personality
+        }
+        
+        supabase_client.table("scan_history").insert(data).execute()
+        return {"status": "saved"}
+        
+    except HTTPException as he:
+        raise he
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to save scan: {str(e)}")
+
+@app.delete("/scans/{scan_id}")
+async def delete_scan(
+    scan_id: str, 
+    user: dict = Depends(get_current_user)
+):
+    """Delete a specific scan from history."""
+    if not user:
+        raise HTTPException(status_code=401, detail="Authentication required")
+    
+    if not supabase_client:
+        raise HTTPException(status_code=503, detail="Database not configured")
+    
+    try:
+        # RLS policies should handle ownership check, but explicit check matches logic
+        response = supabase_client.table("scan_history") \
+            .delete() \
+            .eq("id", scan_id) \
+            .eq("user_id", user["id"]) \
+            .execute()
+            
+        if not response.data:
+            # Note: Supabase delete returns data only if successful matches found? 
+            # Or if select was requested? Assuming RLS handles it.
+            pass
+            
+        return {"status": "deleted"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to delete scan: {str(e)}")
+
 @app.post("/analyze-resume")
 async def analyze_resume(
     file: UploadFile = File(...), 

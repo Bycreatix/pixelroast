@@ -62,6 +62,63 @@ export const sendChatMessage = async (message, history = [], roastContext = {}, 
 };
 
 /**
+ * Save roast to history
+ */
+export const saveScanHistory = async (scanData, token) => {
+    if (!token) return null; // Can't save if not logged in
+
+    const response = await fetch(`${API_URL}/scans`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(scanData)
+    });
+
+    if (!response.ok) {
+        if (response.status === 403) {
+            throw new Error('STORAGE_LIMIT_REACHED');
+        }
+        throw new Error('Failed to save history');
+    }
+    return response.json();
+};
+
+/**
+ * Get user's scan history
+ */
+export const getScanHistory = async () => {
+    const session = await import('../lib/supabase').then(m => m.supabase.auth.getSession());
+    const token = session.data.session?.access_token;
+    if (!token) return [];
+
+    const response = await fetch(`${API_URL}/scans`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+    });
+
+    if (!response.ok) throw new Error('Failed to fetch history');
+    return response.json();
+};
+
+/**
+ * Delete a scan
+ */
+export const deleteScan = async (id) => {
+    const session = await import('../lib/supabase').then(m => m.supabase.auth.getSession());
+    const token = session.data.session?.access_token;
+    if (!token) throw new Error('Not logged in');
+
+    const response = await fetch(`${API_URL}/scans/${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+    });
+
+    if (!response.ok) throw new Error('Failed to delete scan');
+    return true;
+};
+
+/**
  * Check API health status
  */
 export const checkHealth = async () => {
@@ -72,6 +129,9 @@ export const checkHealth = async () => {
 export default {
     roastWebsite,
     sendChatMessage,
+    saveScanHistory,
+    getScanHistory,
+    deleteScan,
     checkHealth,
     API_URL
 };
