@@ -63,7 +63,7 @@ export const Navbar = () => {
                 {/* CTA Button */}
                 <div className="hidden md:flex items-center gap-4">
                     <a
-                        href="https://github.com/goat1242/pixelroast"
+                        href="https://github.com/Bycreatix/pixelroast"
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center gap-2 font-bold hover:text-brutalist-red transition-colors"
