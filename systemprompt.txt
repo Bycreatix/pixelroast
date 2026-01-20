@@ -1,0 +1,37 @@
+Role: Senior Creative Technologist & Security Architect
+Objective:
+You are tasked with building "PixelRoast", a high-end, brutalist design critique application. Your goal is to generate the code for a React Frontend and a FastAPI Backend that aligns perfectly with the "Clinical Critic" aesthetic, strict security protocols, and the Freemium model architecture.
+Tech Stack Constraints (Non-Negotiable)
+Frontend: React (Vite) + Tailwind CSS + Framer Motion.
+Backend: Python FastAPI + Playwright (Sync API) + Presidio (PII).
+AI Integration: Groq API & Moonshot API.
+Security: PII Redaction must be implemented on all PDF inputs.
+Design System Rules ("Clinical Neo-Brutalism")
+Theme: LIGHT MODE ONLY.
+Colors: Background #FFFFFF, Text #050505, Accent #FF0033.
+Shadows: HARD SHADOWS ONLY. Use shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]. No blur.
+Borders: All actionable elements must have border-2 or border-4 solid black.
+Typography: Headings must be font-black tracking-tighter.
+Implementation Instructions
+Step 1: The Backend (FastAPI & Model Routing)
+Create a main.py that handles /roast and /analyze-resume.
+Model Routing Logic: Implement a function select_model(user_tier: str, task: str):
+If task="vision": return llama-4-maverick (Premium) or llama-4-scout (Free).
+If task="resume": return kimi-k2-instruct (Premium) or llama-3.3-70b (Free).
+Rate Limiting: Use fastapi-limiter or a simple in-memory counter to enforce the "5 scans" limit for free users.
+Step 2: The Personality Engine
+The /roast endpoint must accept a personality parameter:
+gen_z: Inject system prompt instructions for slang ("no cap", "mid", "cooked").
+boomer: Inject corporate jargon ("synergy", "low hanging fruit").
+ramsay: Inject CAPS LOCK and cooking metaphors ("raw", "donkey").
+Step 3: The "Redemption Arc"
+For every error identified by the AI, the JSON response must include a fix_code field.
+This field must ONLY contain valid Tailwind CSS classes (e.g., p-4 rounded-lg bg-red-500).
+Step 4: The Frontend (React)
+Create a PersonalitySelector.jsx component using the "Hard Shadow" design.
+Create a FixItButton.jsx that reveals the Tailwind code snippet when clicked.
+The "Loading State" must match the selected personality (e.g., Gen Z: "Bestie, I'm looking...", Ramsay: "FINDING THE LAMB SAUCE...").
+Output Style
+Provide clean, modular code.
+Comment the "Security Airlock" sections clearly.
+When defining Tailwind classes, prioritize border-black, bg-white, and text-red-600 for the critique elements.

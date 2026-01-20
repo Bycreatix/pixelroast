@@ -1,0 +1,179 @@
+@import "tailwindcss";
+
+@import url('https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+@theme {
+  --color-brutalist-white: #FFFFFF;
+  --color-brutalist-black: #050505;
+  --color-brutalist-red: #FF0033;
+  --color-brutalist-yellow: #FFD60A;
+  --color-brutalist-gray: #E5E7EB;
+  --color-brutalist-cream: #FFFEF5;
+
+  --font-sans: "Inter Tight", sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+
+  --shadow-hard: 4px 4px 0px 0px #000000;
+  --shadow-hard-sm: 2px 2px 0px 0px #000000;
+  --shadow-hard-lg: 8px 8px 0px 0px #000000;
+  --shadow-hard-xl: 12px 12px 0px 0px #000000;
+  --shadow-hard-yellow: 4px 4px 0px 0px #FFD60A;
+  --shadow-hard-red: 4px 4px 0px 0px #FF0033;
+}
+
+@layer base {
+  body {
+    @apply bg-brutalist-white text-brutalist-black font-sans antialiased selection:bg-brutalist-yellow selection:text-brutalist-black;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-bold tracking-tighter;
+  }
+
+  ::selection {
+    background: #FFD60A;
+    color: #050505;
+  }
+}
+
+@layer components {
+
+  /* Brutalist Buttons */
+  .btn-brutal {
+    @apply border-2 border-brutalist-black bg-white px-6 py-3 font-bold uppercase tracking-tight shadow-hard transition-all active:translate-x-1 active:translate-y-1 active:shadow-none hover:shadow-hard-lg;
+  }
+
+  .btn-brutal-primary {
+    @apply border-2 border-brutalist-black bg-brutalist-black text-white px-6 py-3 font-bold uppercase tracking-tight shadow-hard-yellow transition-all active:translate-x-1 active:translate-y-1 active:shadow-none hover:bg-brutalist-red;
+  }
+
+  .btn-brutal-yellow {
+    @apply border-2 border-brutalist-black bg-brutalist-yellow text-brutalist-black px-6 py-3 font-bold uppercase tracking-tight shadow-hard transition-all active:translate-x-1 active:translate-y-1 active:shadow-none hover:bg-brutalist-red hover:text-white;
+  }
+
+  /* Brutalist Inputs */
+  .input-brutal {
+    @apply w-full border-2 border-brutalist-black bg-white p-4 font-mono text-lg outline-none focus:ring-4 focus:ring-brutalist-yellow shadow-hard;
+  }
+
+  /* Brutalist Cards */
+  .card-brutal {
+    @apply border-2 border-brutalist-black bg-white p-6 shadow-hard;
+  }
+
+  .card-brutal-yellow {
+    @apply border-2 border-brutalist-black bg-brutalist-yellow p-6 shadow-hard;
+  }
+
+  /* Dot Pattern Background */
+  .bg-dots {
+    background-image: radial-gradient(#050505 1px, transparent 1px);
+    background-size: 16px 16px;
+  }
+
+  .bg-dots-yellow {
+    background-image: radial-gradient(#FFD60A 1.5px, transparent 1.5px);
+    background-size: 20px 20px;
+  }
+
+  /* Grid Pattern */
+  .bg-grid {
+    background-image:
+      linear-gradient(to right, #E5E7EB 1px, transparent 1px),
+      linear-gradient(to bottom, #E5E7EB 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+
+  /* Marquee Animation */
+  @keyframes marquee {
+    0% {
+      transform: translateX(0);
+    }
+
+    100% {
+      transform: translateX(-100%);
+    }
+  }
+
+  .animate-marquee {
+    animation: marquee 30s linear infinite;
+  }
+
+  /* Pulse Glow */
+  @keyframes pulse-glow {
+
+    0%,
+    100% {
+      box-shadow: 0 0 0 0 rgba(255, 214, 10, 0.7);
+    }
+
+    50% {
+      box-shadow: 0 0 0 10px rgba(255, 214, 10, 0);
+    }
+  }
+
+  .animate-pulse-glow {
+    animation: pulse-glow 2s ease-in-out infinite;
+  }
+
+  /* Shake Animation for icons */
+  @keyframes shake {
+
+    0%,
+    100% {
+      transform: rotate(0deg);
+    }
+
+    25% {
+      transform: rotate(-5deg);
+    }
+
+    75% {
+      transform: rotate(5deg);
+    }
+  }
+
+  .animate-shake {
+    animation: shake 0.5s ease-in-out;
+  }
+
+  /* Float Animation */
+  @keyframes float {
+
+    0%,
+    100% {
+      transform: translateY(0px);
+    }
+
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+
+  .animate-float {
+    animation: float 3s ease-in-out infinite;
+  }
+
+  /* Striped Background */
+  .bg-stripes {
+    background: repeating-linear-gradient(-45deg,
+        #FFD60A,
+        #FFD60A 10px,
+        #050505 10px,
+        #050505 20px);
+  }
+
+  /* Highlight Text */
+  .highlight-yellow {
+    background: linear-gradient(180deg, transparent 60%, #FFD60A 60%);
+  }
+
+  .highlight-red {
+    background: linear-gradient(180deg, transparent 60%, #FF0033 60%);
+  }
+}

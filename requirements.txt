@@ -1,0 +1,29 @@
+# ===========================
+# PixelRoast Backend Dependencies
+# ===========================
+
+# Core Framework
+fastapi>=0.115.0
+uvicorn[standard]>=0.32.0
+pydantic>=2.9.0
+
+# Browser Automation
+playwright==1.44.0
+
+# Image Processing (Vision Data Reduction)
+Pillow==10.3.0
+
+# AI / LLM Client
+groq>=0.9.0
+
+# Caching (Optional - Upstash Redis)
+redis==5.0.3
+
+# Database & Auth (Supabase)
+supabase>=2.0.0
+
+# Security
+bleach>=6.0.0
+
+# Utilities
+python-multipart==0.0.9
