@@ -3,11 +3,11 @@ import { Stamp } from '../components/ui/Stamp';
 import { Scorecard } from '../components/ui/Scorecard';
 import { FixItButton } from './FixItButton';
 import { motion } from 'framer-motion';
-import { AlertTriangle, CheckCircle, Zap } from 'lucide-react';
+import { AlertTriangle, CheckCircle } from 'lucide-react';
 
 // Demo content for non-signed-in users
 const DEMO_DATA = {
-    roast: "This portfolio looks like someone discovered gradients in 2010 and never recovered. The font choices? Bold move using Comic Sans's sophisticated cousin. And that hero section? It's giving 'I watched one YouTube tutorial.'",
+    roast: "This portfolio looks like someone discovered gradients in 2010 and never recovered. The font choices? Bold move using Comic Sans's sophisticated cousin.",
     errors: [
         "Typography: Using 47 different font sizes is not 'dynamic design'",
         "Colors: Neon pink and dark brown together is a hate crime",
@@ -19,9 +19,41 @@ const DEMO_DATA = {
         "grid grid-cols-1 md:grid-cols-3 gap-6"
     ],
     tier: 'free',
-    technology: 'REACT',
     scans_used: 1,
     scans_limit: 5
+};
+
+// Helper to extract text from roast field (could be string or object)
+const parseRoastText = (roast) => {
+    if (!roast) return '';
+    if (typeof roast === 'string') return roast;
+    // If roast is an object, try common field names
+    if (typeof roast === 'object') {
+        return roast.critique || roast.message || roast.text || roast.content || JSON.stringify(roast, null, 2);
+    }
+    return String(roast);
+};
+
+// Helper to extract errors array
+const parseErrors = (data) => {
+    if (Array.isArray(data.errors)) return data.errors;
+    if (typeof data.errors === 'string') return [data.errors];
+    // Check if roast object contains errors
+    if (data.roast && typeof data.roast === 'object' && Array.isArray(data.roast.errors)) {
+        return data.roast.errors;
+    }
+    return [];
+};
+
+// Helper to extract fixes array
+const parseFixes = (data) => {
+    if (Array.isArray(data.fixes)) return data.fixes;
+    if (typeof data.fixes === 'string') return [data.fixes];
+    // Check if roast object contains fixes
+    if (data.roast && typeof data.roast === 'object' && Array.isArray(data.roast.fixes)) {
+        return data.roast.fixes;
+    }
+    return [];
 };
 
 export const RoastView = ({ roastData, isDemo = false }) => {
@@ -30,34 +62,38 @@ export const RoastView = ({ roastData, isDemo = false }) => {
 
     if (!displayData) return null;
 
-    const { roast, errors = [], fixes = [], tier, url, scans_used, scans_limit } = displayData;
+    // Parse data with fallbacks
+    const roastText = parseRoastText(displayData.roast);
+    const errors = parseErrors(displayData);
+    const fixes = parseFixes(displayData);
+    const { tier, url, scans_used, scans_limit, screenshot } = displayData;
 
     // Calculate damage score based on number of errors
     const damageScore = Math.min(99, 50 + (errors.length * 12));
 
     // Categorize errors
     const typographyCrimes = errors.filter(e =>
-        e.toLowerCase().includes('font') ||
-        e.toLowerCase().includes('text') ||
-        e.toLowerCase().includes('typography')
-    ).length || Math.ceil(errors.length * 0.4);
+        String(e).toLowerCase().includes('font') ||
+        String(e).toLowerCase().includes('text') ||
+        String(e).toLowerCase().includes('typography')
+    ).length || Math.max(1, Math.ceil(errors.length * 0.4));
 
     const colorClashes = errors.filter(e =>
-        e.toLowerCase().includes('color') ||
-        e.toLowerCase().includes('contrast') ||
-        e.toLowerCase().includes('palette')
-    ).length || Math.ceil(errors.length * 0.3);
+        String(e).toLowerCase().includes('color') ||
+        String(e).toLowerCase().includes('contrast') ||
+        String(e).toLowerCase().includes('palette')
+    ).length || Math.max(1, Math.ceil(errors.length * 0.3));
 
     const alignmentErrors = errors.filter(e =>
-        e.toLowerCase().includes('align') ||
-        e.toLowerCase().includes('layout') ||
-        e.toLowerCase().includes('spacing') ||
-        e.toLowerCase().includes('grid')
-    ).length || Math.ceil(errors.length * 0.3);
+        String(e).toLowerCase().includes('align') ||
+        String(e).toLowerCase().includes('layout') ||
+        String(e).toLowerCase().includes('spacing') ||
+        String(e).toLowerCase().includes('grid')
+    ).length || Math.max(1, Math.ceil(errors.length * 0.3));
 
     // Get detected technology from roast text
     const detectTechnology = () => {
-        const roastLower = (roast || '').toLowerCase();
+        const roastLower = roastText.toLowerCase();
         if (roastLower.includes('react')) return 'REACT';
         if (roastLower.includes('vue')) return 'VUE';
         if (roastLower.includes('angular')) return 'ANGULAR';
@@ -82,12 +118,11 @@ export const RoastView = ({ roastData, isDemo = false }) => {
                         </div>
 
                         <div className="relative border-4 border-brutalist-black bg-white shadow-hard-lg overflow-hidden">
-                            {/* Screenshot Area with stamps */}
-                            <div className="bg-gray-200 min-h-[400px] relative">
-                                {/* Actual screenshot or skeleton fallback */}
-                                {displayData.screenshot ? (
+                            {/* Screenshot Area */}
+                            <div className="bg-gray-200 min-h-[300px] relative">
+                                {screenshot ? (
                                     <img
-                                        src={`data:image/jpeg;base64,${displayData.screenshot}`}
+                                        src={`data:image/jpeg;base64,${screenshot}`}
                                         alt="Website screenshot"
                                         className="w-full h-auto"
                                     />
@@ -104,19 +139,19 @@ export const RoastView = ({ roastData, isDemo = false }) => {
                                     </div>
                                 )}
 
-                                {/* Overlay Stamps based on errors */}
-                                {typographyCrimes > 0 && (
-                                    <Stamp className="absolute top-8 left-8 -rotate-6">
-                                        <p className="text-sm font-black">PADDING?</p>
-                                        <p className="text-[10px] font-mono">NEVER HEARD OF HER</p>
-                                    </Stamp>
-                                )}
+                                {/* Overlay Stamps */}
+                                {errors.length > 0 && (
+                                    <>
+                                        <Stamp className="absolute top-8 left-8 -rotate-6">
+                                            <p className="text-sm font-black">PADDING?</p>
+                                            <p className="text-[10px] font-mono">NEVER HEARD OF HER</p>
+                                        </Stamp>
 
-                                {colorClashes > 0 && (
-                                    <Stamp className="absolute bottom-24 right-12 rotate-12">
-                                        <p className="text-sm font-black">CONTRAST!</p>
-                                        <p className="text-[10px] font-mono">MY EYES ARE BLEEDING</p>
-                                    </Stamp>
+                                        <Stamp className="absolute bottom-24 right-12 rotate-12">
+                                            <p className="text-sm font-black">CONTRAST!</p>
+                                            <p className="text-[10px] font-mono">MY EYES ARE BLEEDING</p>
+                                        </Stamp>
+                                    </>
                                 )}
                             </div>
 
@@ -138,10 +173,10 @@ export const RoastView = ({ roastData, isDemo = false }) => {
                                         >
                                             <div className="flex-1">
                                                 <p className="font-bold text-brutalist-red text-xs mb-1">ISSUE #{idx + 1}</p>
-                                                <p className="text-gray-800 text-sm">{error}</p>
+                                                <p className="text-gray-800 text-sm">{String(error)}</p>
                                             </div>
                                             {fixes[idx] && (
-                                                <FixItButton code={fixes[idx]} />
+                                                <FixItButton code={String(fixes[idx])} />
                                             )}
                                         </motion.div>
                                     ))}
@@ -164,7 +199,7 @@ export const RoastView = ({ roastData, isDemo = false }) => {
                             typographyCrimes={typographyCrimes}
                             colorClashes={colorClashes}
                             alignmentErrors={alignmentErrors}
-                            roast={roast}
+                            roast={roastText}
                             tier={tier}
                             scansUsed={scans_used}
                             scansLimit={scans_limit}
