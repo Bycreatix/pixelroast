@@ -639,7 +639,10 @@ class ScanStorageRequest(BaseModel):
 # SCAN HISTORY ENDPOINTS
 # ===========================
 @app.get("/scans")
-async def get_scans(user: dict = Depends(get_current_user)):
+async def get_scans(
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+    user: dict = Depends(get_current_user)
+):
     """Fetch user's scan history."""
     if not user:
         raise HTTPException(status_code=401, detail="Authentication required")
@@ -648,7 +651,16 @@ async def get_scans(user: dict = Depends(get_current_user)):
         raise HTTPException(status_code=503, detail="Database not configured")
     
     try:
-        response = supabase_client.table("scan_history") \
+        user_token = credentials.credentials if credentials else None
+        if not user_token:
+            raise HTTPException(status_code=401, detail="No auth token provided")
+        
+        # Create authenticated client for RLS
+        from supabase import create_client
+        user_supabase = create_client(os.getenv("SUPABASE_URL"), os.getenv("SUPABASE_ANON_KEY"))
+        user_supabase.postgrest.auth(user_token)
+        
+        response = user_supabase.table("scan_history") \
             .select("*") \
             .eq("user_id", user["id"]) \
             .order("created_at", desc=True) \
@@ -660,6 +672,8 @@ async def get_scans(user: dict = Depends(get_current_user)):
 @app.post("/scans")
 async def save_scan(
     scan: ScanStorageRequest, 
+    request: Request,
+    credentials: HTTPAuthorizationCredentials = Depends(security),
     user: dict = Depends(get_current_user)
 ):
     """Save a roast to history with storage limits."""
@@ -669,10 +683,22 @@ async def save_scan(
     if not supabase_client:
         raise HTTPException(status_code=503, detail="Database not configured")
     
-    # Check current usage
+    # Create authenticated client with user's JWT for RLS
     try:
+        user_token = credentials.credentials if credentials else None
+        if not user_token:
+            raise HTTPException(status_code=401, detail="No auth token provided")
+        
+        # Create a new client with user's access token for RLS
+        supabase_url = os.getenv("SUPABASE_URL")
+        supabase_key = os.getenv("SUPABASE_ANON_KEY")
+        
+        from supabase import create_client
+        user_supabase = create_client(supabase_url, supabase_key)
+        user_supabase.postgrest.auth(user_token)
+        
         # Get count
-        count_response = supabase_client.table("scan_history") \
+        count_response = user_supabase.table("scan_history") \
             .select("id", count="exact") \
             .eq("user_id", user["id"]) \
             .execute()
@@ -689,7 +715,7 @@ async def save_scan(
         # Clean roast_data - remove screenshot (too large for DB)
         clean_roast_data = {k: v for k, v in scan.roast_data.items() if k != 'screenshot'}
             
-        # Save scan
+        # Save scan using authenticated client
         data = {
             "user_id": user["id"],
             "url": scan.url,
@@ -697,7 +723,7 @@ async def save_scan(
             "personality": scan.personality
         }
         
-        result = supabase_client.table("scan_history").insert(data).execute()
+        result = user_supabase.table("scan_history").insert(data).execute()
         return {"status": "saved", "id": result.data[0]["id"] if result.data else None}
         
     except HTTPException as he:

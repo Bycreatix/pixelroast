@@ -32,12 +32,12 @@ export const FixItButton = ({ code = "p-4 bg-red-500 rounded-lg" }) => {
                             onClick={() => setIsOpen(false)}
                         />
 
-                        {/* Popup - positioned to the right on mobile, left on desktop */}
+                        {/* Popup - opens ABOVE the button to avoid cut-off */}
                         <motion.div
                             initial={{ opacity: 0, y: 10, scale: 0.9 }}
                             animate={{ opacity: 1, y: 0, scale: 1 }}
                             exit={{ opacity: 0, y: 10, scale: 0.9 }}
-                            className="fixed sm:absolute z-50 right-4 sm:right-0 sm:left-auto top-auto bottom-4 sm:bottom-auto sm:top-full sm:mt-2 w-[calc(100vw-2rem)] sm:w-72 p-4 bg-white border-2 border-brutalist-black shadow-hard-lg"
+                            className="fixed sm:absolute z-50 left-4 right-4 sm:left-auto sm:right-0 bottom-20 sm:bottom-full sm:mb-2 sm:w-72 p-4 bg-white border-2 border-brutalist-black shadow-hard-lg"
                         >
                             {/* Header */}
                             <div className="flex justify-between items-center mb-3">
@@ -62,8 +62,8 @@ export const FixItButton = ({ code = "p-4 bg-red-500 rounded-lg" }) => {
                             <button
                                 onClick={handleCopy}
                                 className={`w-full py-2 font-bold text-sm flex items-center justify-center gap-2 border-2 border-brutalist-black transition-colors ${copied
-                                        ? 'bg-green-500 text-white'
-                                        : 'bg-brutalist-yellow hover:bg-brutalist-black hover:text-white'
+                                    ? 'bg-green-500 text-white'
+                                    : 'bg-brutalist-yellow hover:bg-brutalist-black hover:text-white'
                                     }`}
                             >
                                 {copied ? (

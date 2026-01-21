@@ -23,15 +23,37 @@ const DEMO_DATA = {
     scans_limit: 5
 };
 
+// Helper to clean markdown code blocks from text
+const cleanMarkdown = (text) => {
+    if (!text) return '';
+    // Remove ```json and ``` markers
+    let cleaned = text.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
+    // Try to parse as JSON if it looks like JSON
+    if (cleaned.startsWith('{') || cleaned.startsWith('[')) {
+        try {
+            const parsed = JSON.parse(cleaned);
+            // Return critique if it exists
+            if (parsed.critique) return parsed.critique;
+            if (parsed.message) return parsed.message;
+            if (parsed.text) return parsed.text;
+        } catch (e) {
+            // Not valid JSON, return as is
+        }
+    }
+    return cleaned;
+};
+
 // Helper to extract text from roast field (could be string or object)
 const parseRoastText = (roast) => {
     if (!roast) return '';
-    if (typeof roast === 'string') return roast;
+    if (typeof roast === 'string') return cleanMarkdown(roast);
     // If roast is an object, try common field names
     if (typeof roast === 'object') {
-        return roast.critique || roast.message || roast.text || roast.content || JSON.stringify(roast, null, 2);
+        const text = roast.critique || roast.message || roast.text || roast.content;
+        if (text) return cleanMarkdown(text);
+        return cleanMarkdown(JSON.stringify(roast));
     }
-    return String(roast);
+    return cleanMarkdown(String(roast));
 };
 
 // Helper to extract errors array
