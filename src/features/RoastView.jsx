@@ -82,19 +82,27 @@ export const RoastView = ({ roastData, isDemo = false }) => {
                         </div>
 
                         <div className="relative border-4 border-brutalist-black bg-white shadow-hard-lg overflow-hidden">
-                            {/* Mock Screenshot Area with stamps */}
-                            <div className="bg-gray-200 min-h-[400px] relative p-6">
-                                {/* Skeleton placeholder blocks */}
-                                <div className="space-y-4">
-                                    <div className="bg-gray-300 h-8 w-1/3 rounded"></div>
-                                    <div className="bg-gray-300 h-4 w-2/3 rounded"></div>
-                                    <div className="bg-gray-300 h-4 w-1/2 rounded"></div>
-                                    <div className="mt-8 grid grid-cols-3 gap-4">
-                                        <div className="bg-gray-300 h-24 rounded"></div>
-                                        <div className="bg-gray-300 h-24 rounded"></div>
-                                        <div className="bg-gray-300 h-24 rounded"></div>
+                            {/* Screenshot Area with stamps */}
+                            <div className="bg-gray-200 min-h-[400px] relative">
+                                {/* Actual screenshot or skeleton fallback */}
+                                {displayData.screenshot ? (
+                                    <img
+                                        src={`data:image/jpeg;base64,${displayData.screenshot}`}
+                                        alt="Website screenshot"
+                                        className="w-full h-auto"
+                                    />
+                                ) : (
+                                    <div className="p-6 space-y-4">
+                                        <div className="bg-gray-300 h-8 w-1/3 rounded"></div>
+                                        <div className="bg-gray-300 h-4 w-2/3 rounded"></div>
+                                        <div className="bg-gray-300 h-4 w-1/2 rounded"></div>
+                                        <div className="mt-8 grid grid-cols-3 gap-4">
+                                            <div className="bg-gray-300 h-24 rounded"></div>
+                                            <div className="bg-gray-300 h-24 rounded"></div>
+                                            <div className="bg-gray-300 h-24 rounded"></div>
+                                        </div>
                                     </div>
-                                </div>
+                                )}
 
                                 {/* Overlay Stamps based on errors */}
                                 {typographyCrimes > 0 && (

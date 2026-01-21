@@ -556,6 +556,7 @@ async def roast_website(
         "roast": roast_data.get("critique", ""),
         "errors": roast_data.get("errors", []),
         "fixes": roast_data.get("fixes", []),
+        "screenshot": img_base64,  # Include screenshot for frontend display
         "screenshot_optimized": True,
         "cached": False,
         "scans_used": used,
@@ -615,7 +616,7 @@ async def chat_clapback(
             model=select_model(False, "chat"),
             messages=messages,
             temperature=0.9,
-            max_tokens=512
+            max_tokens=150  # Keep responses short and punchy
         )
         
         reply = response.choices[0].message.content

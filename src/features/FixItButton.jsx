@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Wrench, Check } from 'lucide-react';
+import { Wrench, Check, Copy, X } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 
 export const FixItButton = ({ code = "p-4 bg-red-500 rounded-lg" }) => {
@@ -14,10 +14,10 @@ export const FixItButton = ({ code = "p-4 bg-red-500 rounded-lg" }) => {
     };
 
     return (
-        <div className="relative inline-block">
+        <div className="relative">
             <Button
                 onClick={() => setIsOpen(!isOpen)}
-                className={`h-8 px-3 text-xs bg-brutalist-black text-white ${isOpen ? 'bg-brutalist-red hover:bg-red-700' : ''}`}
+                className={`h-8 px-3 text-xs bg-brutalist-black text-white shrink-0 ${isOpen ? 'bg-brutalist-red hover:bg-red-700' : ''}`}
             >
                 <Wrench size={12} />
                 FIX IT
@@ -25,23 +25,61 @@ export const FixItButton = ({ code = "p-4 bg-red-500 rounded-lg" }) => {
 
             <AnimatePresence>
                 {isOpen && (
-                    <motion.div
-                        initial={{ opacity: 0, y: 10, scale: 0.9 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: 10, scale: 0.9 }}
-                        className="absolute z-50 left-0 top-full mt-2 w-64 p-3 bg-white border-2 border-brutalist-black shadow-hard"
-                    >
-                        <div className="flex justify-between items-center mb-2">
-                            <span className="font-bold text-xs uppercase text-gray-500">Tailwind Solution</span>
-                            <button onClick={handleCopy} className="text-xs font-bold text-brutalist-red hover:underline">
-                                {copied ? 'COPIED!' : 'COPY CLASS'}
+                    <>
+                        {/* Backdrop to close on click outside */}
+                        <div
+                            className="fixed inset-0 z-40"
+                            onClick={() => setIsOpen(false)}
+                        />
+
+                        {/* Popup - positioned to the right on mobile, left on desktop */}
+                        <motion.div
+                            initial={{ opacity: 0, y: 10, scale: 0.9 }}
+                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                            exit={{ opacity: 0, y: 10, scale: 0.9 }}
+                            className="fixed sm:absolute z-50 right-4 sm:right-0 sm:left-auto top-auto bottom-4 sm:bottom-auto sm:top-full sm:mt-2 w-[calc(100vw-2rem)] sm:w-72 p-4 bg-white border-2 border-brutalist-black shadow-hard-lg"
+                        >
+                            {/* Header */}
+                            <div className="flex justify-between items-center mb-3">
+                                <span className="font-bold text-sm uppercase text-brutalist-black flex items-center gap-2">
+                                    <Wrench size={14} />
+                                    Tailwind Fix
+                                </span>
+                                <button
+                                    onClick={() => setIsOpen(false)}
+                                    className="p-1 hover:bg-gray-100 rounded"
+                                >
+                                    <X size={16} />
+                                </button>
+                            </div>
+
+                            {/* Code block */}
+                            <div className="bg-gray-900 text-green-400 p-3 font-mono text-xs break-all rounded mb-3 max-h-32 overflow-y-auto">
+                                {code}
+                            </div>
+
+                            {/* Copy button */}
+                            <button
+                                onClick={handleCopy}
+                                className={`w-full py-2 font-bold text-sm flex items-center justify-center gap-2 border-2 border-brutalist-black transition-colors ${copied
+                                        ? 'bg-green-500 text-white'
+                                        : 'bg-brutalist-yellow hover:bg-brutalist-black hover:text-white'
+                                    }`}
+                            >
+                                {copied ? (
+                                    <>
+                                        <Check size={16} />
+                                        COPIED!
+                                    </>
+                                ) : (
+                                    <>
+                                        <Copy size={16} />
+                                        COPY CLASSES
+                                    </>
+                                )}
                             </button>
-                        </div>
-                        <div className="bg-gray-100 p-2 font-mono text-xs break-all border border-gray-200">
-                            {code}
-                        </div>
-                        <div className="absolute -top-1 left-4 w-3 h-3 bg-white border-t-2 border-l-2 border-brutalist-black transform rotate-45" />
-                    </motion.div>
+                        </motion.div>
+                    </>
                 )}
             </AnimatePresence>
         </div>
