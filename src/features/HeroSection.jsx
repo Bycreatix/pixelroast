@@ -6,7 +6,7 @@ import { Input } from '../components/ui/Input';
 import { useAuth } from '../contexts/AuthContext';
 import { AuthModal } from '../components/ui/AuthModal';
 import { UpgradeModal } from './UpgradeModal';
-import { saveScanHistory } from '../services/api';
+import { roastWebsite, saveScanHistory } from '../services/api';
 
 export const HeroSection = ({ onRoastComplete }) => {
     const [url, setUrl] = useState('');

@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MessageCircle, Send, X, Sparkles, Loader2 } from 'lucide-react';
+import { MessageCircle, Send, X, Sparkles, Loader2, Lock } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { cn } from '../utils';
 import { sendChatMessage } from '../services/api';
+import { useAuth } from '../contexts/AuthContext';
+import { AuthModal } from '../components/ui/AuthModal';
 
 // Premium 3-State Toggle Switch
 const PersonalityToggle = ({ value, onChange }) => {
@@ -34,7 +36,7 @@ const PersonalityToggle = ({ value, onChange }) => {
             </div>
 
             {/* Switch Track */}
-            <div className="relative bg-gray-200 p-1 h-14 border-2 border-brutalist-black w-full flex shadow-inner">
+            <div className="relative bg-gray-200 p-1 h-12 border-2 border-brutalist-black w-full flex shadow-inner">
                 {/* Sliding Background */}
                 <motion.div
                     className={cn(
@@ -59,7 +61,7 @@ const PersonalityToggle = ({ value, onChange }) => {
                         )}
                     >
                         <motion.span
-                            className="text-xl"
+                            className="text-lg"
                             animate={{ scale: value === p.id ? 1.2 : 1 }}
                             transition={{ type: "spring", bounce: 0.5 }}
                         >
@@ -68,26 +70,6 @@ const PersonalityToggle = ({ value, onChange }) => {
                     </button>
                 ))}
             </div>
-
-            {/* Current Mode Indicator */}
-            <motion.div
-                key={value}
-                initial={{ opacity: 0, y: -5 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="mt-2 text-center"
-            >
-                <span className={cn(
-                    "inline-flex items-center gap-1 px-2 py-1 text-xs font-bold uppercase border-2 border-brutalist-black",
-                    value === 'gen_z' && "bg-blue-100 text-blue-700",
-                    value === 'boomer' && "bg-gray-100 text-gray-700",
-                    value === 'ramsay' && "bg-red-100 text-brutalist-red"
-                )}>
-                    <Sparkles size={10} />
-                    {value === 'gen_z' && "no cap mode activated"}
-                    {value === 'boomer' && "corporate synergy mode"}
-                    {value === 'ramsay' && "ABSOLUTE CHAOS MODE"}
-                </span>
-            </motion.div>
         </div>
     );
 };
@@ -100,9 +82,18 @@ export const ClapbackChat = () => {
     ]);
     const [input, setInput] = useState('');
     const [isTyping, setIsTyping] = useState(false);
+    const [showAuthModal, setShowAuthModal] = useState(false);
+
+    const { user } = useAuth();
 
     const handleSend = async () => {
         if (!input.trim()) return;
+
+        // Check auth before sending
+        if (!user) {
+            setShowAuthModal(true);
+            return;
+        }
 
         const userMessage = input;
         setMessages(prev => [...prev, { role: 'user', content: userMessage }]);
@@ -120,7 +111,7 @@ export const ClapbackChat = () => {
 
             setMessages(prev => [...prev, {
                 role: 'ai',
-                content: response.response || response.message || "I'm speechless... for once.",
+                content: response.reply || response.response || response.message || "I'm speechless... for once.",
                 personality
             }]);
         } catch (error) {
@@ -153,15 +144,15 @@ export const ClapbackChat = () => {
                 <motion.button
                     layoutId="chat-bubble"
                     onClick={() => setIsOpen(true)}
-                    className="fixed bottom-8 right-8 z-50 h-16 w-16 rounded-full bg-brutalist-black text-white hover:bg-brutalist-red p-0 flex items-center justify-center border-4 border-brutalist-black shadow-hard-lg animate-pulse-glow"
+                    className="fixed bottom-4 right-4 z-50 h-14 w-14 md:h-16 md:w-16 rounded-full bg-brutalist-black text-white hover:bg-brutalist-red p-0 flex items-center justify-center border-4 border-brutalist-black shadow-hard-lg"
                     whileHover={{ scale: 1.1, rotate: -5 }}
                     whileTap={{ scale: 0.95 }}
                 >
-                    <MessageCircle size={28} />
+                    <MessageCircle size={24} />
                 </motion.button>
             )}
 
-            {/* Chat Panel */}
+            {/* Chat Panel - Mobile responsive */}
             <AnimatePresence>
                 {isOpen && (
                     <motion.div
@@ -169,13 +160,13 @@ export const ClapbackChat = () => {
                         initial={{ opacity: 0, scale: 0.9, y: 20 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                        className="fixed bottom-8 right-8 z-50 w-full max-w-sm"
+                        className="fixed bottom-0 right-0 md:bottom-4 md:right-4 z-50 w-full md:max-w-sm"
                     >
-                        <div className="bg-white border-4 border-brutalist-black shadow-hard-xl flex flex-col h-[600px] overflow-hidden">
+                        <div className="bg-white border-4 border-brutalist-black shadow-hard-xl flex flex-col h-[80vh] md:h-[500px] max-h-[600px] overflow-hidden">
                             {/* Header */}
-                            <div className="bg-brutalist-black p-4 flex items-center justify-between text-white border-b-4 border-brutalist-yellow">
+                            <div className="bg-brutalist-black p-3 flex items-center justify-between text-white border-b-4 border-brutalist-yellow shrink-0">
                                 <div>
-                                    <h3 className="font-black uppercase tracking-tight text-lg flex items-center gap-2">
+                                    <h3 className="font-black uppercase tracking-tight text-base flex items-center gap-2">
                                         <span className="text-brutalist-yellow">⚡</span>
                                         Clapback Engine
                                     </h3>
@@ -191,81 +182,98 @@ export const ClapbackChat = () => {
                                 </motion.button>
                             </div>
 
-                            {/* Personality Toggle */}
-                            <div className="bg-gray-50 p-4 border-b-2 border-brutalist-black">
+                            {/* Personality Toggle - Compact */}
+                            <div className="bg-gray-50 p-3 border-b-2 border-brutalist-black shrink-0">
                                 <PersonalityToggle value={personality} onChange={setPersonality} />
                             </div>
 
                             {/* Messages */}
-                            <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-dots">
+                            <div className="flex-1 overflow-y-auto p-3 space-y-3 bg-dots min-h-0">
                                 {messages.map((msg, i) => (
                                     <motion.div
                                         key={i}
                                         initial={{ opacity: 0, y: 10 }}
                                         animate={{ opacity: 1, y: 0 }}
-                                        className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                                        className={cn(
+                                            "flex gap-2",
+                                            msg.role === 'user' ? "justify-end" : "justify-start"
+                                        )}
                                     >
                                         {msg.role === 'ai' && (
-                                            <div className="w-8 h-8 bg-brutalist-yellow border-2 border-brutalist-black flex items-center justify-center mr-2 flex-shrink-0">
-                                                <span className="text-sm">{getAvatarEmoji(msg.personality)}</span>
+                                            <div className="w-8 h-8 bg-brutalist-black text-white flex items-center justify-center border-2 border-brutalist-black text-sm shrink-0">
+                                                {getAvatarEmoji(msg.personality)}
                                             </div>
                                         )}
                                         <div className={cn(
                                             "max-w-[75%] p-3 border-2 border-brutalist-black text-sm",
                                             msg.role === 'user'
-                                                ? "bg-brutalist-black text-white shadow-hard-sm"
-                                                : "bg-white text-black shadow-hard-sm"
+                                                ? "bg-brutalist-yellow"
+                                                : "bg-white shadow-hard"
                                         )}>
                                             {msg.content}
                                         </div>
                                     </motion.div>
                                 ))}
 
-                                {/* Typing Indicator */}
+                                {/* Typing indicator */}
                                 {isTyping && (
                                     <motion.div
                                         initial={{ opacity: 0 }}
                                         animate={{ opacity: 1 }}
-                                        className="flex justify-start"
+                                        className="flex gap-2"
                                     >
-                                        <div className="w-8 h-8 bg-brutalist-yellow border-2 border-brutalist-black flex items-center justify-center mr-2">
-                                            <span className="text-sm">{getAvatarEmoji(personality)}</span>
+                                        <div className="w-8 h-8 bg-brutalist-black text-white flex items-center justify-center border-2 border-brutalist-black text-sm">
+                                            {getAvatarEmoji(personality)}
                                         </div>
-                                        <div className="bg-white border-2 border-brutalist-black p-3 shadow-hard-sm">
-                                            <div className="flex gap-1">
-                                                <span className="w-2 h-2 bg-brutalist-black rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                                                <span className="w-2 h-2 bg-brutalist-black rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                                                <span className="w-2 h-2 bg-brutalist-black rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
-                                            </div>
+                                        <div className="bg-white p-3 border-2 border-brutalist-black shadow-hard flex items-center gap-1">
+                                            <Loader2 size={14} className="animate-spin" />
+                                            <span className="text-xs font-mono text-gray-500">thinking...</span>
                                         </div>
                                     </motion.div>
                                 )}
                             </div>
 
-                            {/* Input */}
-                            <div className="p-4 bg-white border-t-4 border-brutalist-black">
-                                <div className="flex gap-2">
-                                    <Input
-                                        value={input}
-                                        onChange={(e) => setInput(e.target.value)}
-                                        placeholder="Fight back..."
-                                        className="h-12 text-sm py-2 border-2"
-                                        onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-                                    />
-                                    <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                                        <Button
-                                            onClick={handleSend}
-                                            className="h-12 w-12 bg-brutalist-yellow text-brutalist-black border-2 border-brutalist-black hover:bg-brutalist-red hover:text-white p-0 flex items-center justify-center"
-                                        >
-                                            <Send size={18} />
-                                        </Button>
-                                    </motion.div>
+                            {/* Auth Required Message */}
+                            {!user && (
+                                <div className="bg-yellow-50 border-t-2 border-brutalist-black p-3 shrink-0">
+                                    <div className="flex items-center gap-2 text-sm">
+                                        <Lock size={16} className="text-brutalist-red" />
+                                        <span className="font-bold">Sign in to use the chat</span>
+                                    </div>
                                 </div>
+                            )}
+
+                            {/* Input */}
+                            <div className="p-3 bg-gray-100 border-t-2 border-brutalist-black flex gap-2 shrink-0">
+                                <input
+                                    value={input}
+                                    onChange={(e) => setInput(e.target.value)}
+                                    onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+                                    placeholder={user ? "Defend yourself..." : "Sign in to chat..."}
+                                    className="flex-1 px-3 py-2 border-2 border-brutalist-black font-mono text-sm focus:outline-none focus:ring-2 focus:ring-brutalist-yellow"
+                                    disabled={!user}
+                                />
+                                <motion.button
+                                    onClick={handleSend}
+                                    disabled={!input.trim() || isTyping}
+                                    className="bg-brutalist-black text-white p-2 border-2 border-brutalist-black hover:bg-brutalist-red disabled:opacity-50 disabled:cursor-not-allowed"
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
+                                >
+                                    <Send size={18} />
+                                </motion.button>
                             </div>
                         </div>
                     </motion.div>
                 )}
             </AnimatePresence>
+
+            {/* Auth Modal */}
+            <AuthModal
+                isOpen={showAuthModal}
+                onClose={() => setShowAuthModal(false)}
+                onSuccess={() => setShowAuthModal(false)}
+            />
         </>
     );
 };
