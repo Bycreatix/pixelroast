@@ -139,6 +139,11 @@ class ResumeRequest(BaseModel):
     filename: str
     is_premium: bool = False
 
+class ScanStorageRequest(BaseModel):
+    url: str
+    roast_data: dict
+    personality: str = "gen_z"
+
 # ===========================
 # AUTH UTILITIES
 # ===========================
