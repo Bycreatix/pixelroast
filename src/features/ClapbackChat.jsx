@@ -144,7 +144,7 @@ export const ClapbackChat = () => {
                 <motion.button
                     layoutId="chat-bubble"
                     onClick={() => setIsOpen(true)}
-                    className="fixed bottom-4 right-4 z-50 h-14 w-14 md:h-16 md:w-16 rounded-full bg-brutalist-black text-white hover:bg-brutalist-red p-0 flex items-center justify-center border-4 border-brutalist-black shadow-hard-lg"
+                    className="fixed bottom-4 right-4 md:bottom-8 md:right-8 z-50 h-14 w-14 md:h-16 md:w-16 rounded-full bg-brutalist-black text-white hover:bg-brutalist-red p-0 flex items-center justify-center border-4 border-brutalist-black shadow-hard-lg animate-pulse-glow"
                     whileHover={{ scale: 1.1, rotate: -5 }}
                     whileTap={{ scale: 0.95 }}
                 >
