@@ -671,13 +671,13 @@ async def save_scan(
     
     # Check current usage
     try:
-        # Get count (inefficient but simple for now)
+        # Get count
         count_response = supabase_client.table("scan_history") \
             .select("id", count="exact") \
             .eq("user_id", user["id"]) \
             .execute()
         
-        current_count = count_response.count
+        current_count = count_response.count or 0
         limit = 30 if user.get("is_premium") else 5
         
         if current_count >= limit:
@@ -685,21 +685,25 @@ async def save_scan(
                 status_code=403, 
                 detail="STORAGE_LIMIT_REACHED"
             )
+        
+        # Clean roast_data - remove screenshot (too large for DB)
+        clean_roast_data = {k: v for k, v in scan.roast_data.items() if k != 'screenshot'}
             
         # Save scan
         data = {
             "user_id": user["id"],
             "url": scan.url,
-            "roast_data": scan.roast_data,
+            "roast_data": clean_roast_data,
             "personality": scan.personality
         }
         
-        supabase_client.table("scan_history").insert(data).execute()
-        return {"status": "saved"}
+        result = supabase_client.table("scan_history").insert(data).execute()
+        return {"status": "saved", "id": result.data[0]["id"] if result.data else None}
         
     except HTTPException as he:
         raise he
     except Exception as e:
+        print(f"Scan save error: {str(e)}")  # Log for debugging
         raise HTTPException(status_code=500, detail=f"Failed to save scan: {str(e)}")
 
 @app.delete("/scans/{scan_id}")
