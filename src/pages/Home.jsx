@@ -26,8 +26,8 @@ const Home = () => {
                 }} />
             )}
 
-            {/* Roast Result - shows after a roast or when selecting from history */}
-            <RoastView roastData={roastResult} />
+            {/* Roast Result - shows after a roast, or demo mode for guests */}
+            <RoastView roastData={roastResult} isDemo={!user && !roastResult} />
 
             <PersonalitySelector />
             <AboutSection />

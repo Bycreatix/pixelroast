@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Upload, FileText, X, ShieldCheck, Lock, Loader2 } from 'lucide-react';
+import { Upload, FileText, X, ShieldCheck, Lock, Loader2, AlertTriangle, CheckCircle } from 'lucide-react';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { useAuth } from '../contexts/AuthContext';
@@ -11,21 +11,19 @@ export const ResumeUpload = () => {
     const [isDragOver, setIsDragOver] = useState(false);
     const [showAuthModal, setShowAuthModal] = useState(false);
     const [isAnalyzing, setIsAnalyzing] = useState(false);
+    const [analysisResult, setAnalysisResult] = useState(null);
     const fileInputRef = useRef(null);
 
     const { user } = useAuth();
 
-    // Handle click on upload area
     const handleClick = () => {
         if (!user) {
             setShowAuthModal(true);
             return;
         }
-        // Trigger file input
         fileInputRef.current?.click();
     };
 
-    // Handle file selection from input
     const handleFileChange = (e) => {
         const selectedFile = e.target.files?.[0];
         if (selectedFile && selectedFile.type === 'application/pdf') {
@@ -34,10 +32,10 @@ export const ResumeUpload = () => {
                 size: `${(selectedFile.size / 1024 / 1024).toFixed(2)} MB`,
                 rawFile: selectedFile
             });
+            setAnalysisResult(null);
         }
     };
 
-    // Handle drag and drop
     const handleDrop = (e) => {
         e.preventDefault();
         setIsDragOver(false);
@@ -54,17 +52,34 @@ export const ResumeUpload = () => {
                 size: `${(droppedFile.size / 1024 / 1024).toFixed(2)} MB`,
                 rawFile: droppedFile
             });
+            setAnalysisResult(null);
         }
     };
 
     const handleAnalyze = async () => {
         if (!file) return;
         setIsAnalyzing(true);
-        // TODO: Implement actual resume analysis API call
-        setTimeout(() => {
-            setIsAnalyzing(false);
-            alert('Resume analysis coming soon!');
-        }, 2000);
+
+        // Simulate analysis (replace with actual API call when backend is ready)
+        await new Promise(resolve => setTimeout(resolve, 3000));
+
+        // Mock analysis result
+        setAnalysisResult({
+            lies: [
+                { skill: "Expert in React", reality: "Used create-react-app once" },
+                { skill: "10+ years Python", reality: "Age 23, math doesn't check out" },
+                { skill: "Team leadership", reality: "Told intern where coffee machine is" }
+            ],
+            score: 72,
+            verdict: "Your resume reads like a fantasy novel. Bold claims, zero evidence. At least you're consistent."
+        });
+
+        setIsAnalyzing(false);
+    };
+
+    const resetUpload = () => {
+        setFile(null);
+        setAnalysisResult(null);
     };
 
     return (
@@ -79,7 +94,7 @@ export const ResumeUpload = () => {
                         <span className="bg-black text-white px-2 mx-1 font-mono text-xs">PDF ONLY</span>
                     </p>
 
-                    <div className="max-w-md mx-auto relative">
+                    <div className="max-w-2xl mx-auto relative">
                         {/* Security Badge */}
                         <div className="absolute -top-4 -right-4 z-10 rotate-12">
                             <div className="bg-white border-2 border-brutalist-black px-3 py-1 shadow-hard flex items-center gap-2">
@@ -88,7 +103,6 @@ export const ResumeUpload = () => {
                             </div>
                         </div>
 
-                        {/* Hidden file input */}
                         <input
                             ref={fileInputRef}
                             type="file"
@@ -133,7 +147,7 @@ export const ResumeUpload = () => {
                                             </>
                                         )}
                                     </motion.div>
-                                ) : (
+                                ) : !analysisResult ? (
                                     <motion.div
                                         key="file"
                                         initial={{ scale: 0.9, opacity: 0 }}
@@ -146,12 +160,12 @@ export const ResumeUpload = () => {
                                                     <FileText size={24} className="text-brutalist-red" />
                                                 </div>
                                                 <div className="text-left">
-                                                    <p className="font-bold text-sm truncate max-w-[150px]">{file.name}</p>
+                                                    <p className="font-bold text-sm truncate max-w-[200px]">{file.name}</p>
                                                     <p className="font-mono text-xs text-gray-500">{file.size}</p>
                                                 </div>
                                             </div>
                                             <button
-                                                onClick={() => setFile(null)}
+                                                onClick={resetUpload}
                                                 className="p-2 hover:bg-red-100 transition-colors rounded"
                                             >
                                                 <X size={18} />
@@ -166,12 +180,58 @@ export const ResumeUpload = () => {
                                             {isAnalyzing ? (
                                                 <>
                                                     <Loader2 size={18} className="animate-spin mr-2" />
-                                                    ANALYZING...
+                                                    ANALYZING YOUR LIES...
                                                 </>
                                             ) : (
                                                 'EXPOSE MY LIES'
                                             )}
                                         </Button>
+                                    </motion.div>
+                                ) : (
+                                    <motion.div
+                                        key="result"
+                                        initial={{ scale: 0.9, opacity: 0 }}
+                                        animate={{ scale: 1, opacity: 1 }}
+                                        className="p-6 text-left"
+                                    >
+                                        {/* Header */}
+                                        <div className="flex items-center justify-between mb-6">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-12 h-12 bg-brutalist-red text-white border-2 border-brutalist-black flex items-center justify-center font-black text-xl">
+                                                    {analysisResult.score}%
+                                                </div>
+                                                <div>
+                                                    <p className="font-black text-lg">DECEPTION SCORE</p>
+                                                    <p className="text-xs font-mono text-gray-500">Higher = More creative writing</p>
+                                                </div>
+                                            </div>
+                                            <button
+                                                onClick={resetUpload}
+                                                className="p-2 hover:bg-red-100 transition-colors rounded border-2 border-brutalist-black"
+                                            >
+                                                <X size={18} />
+                                            </button>
+                                        </div>
+
+                                        {/* Lies Found */}
+                                        <div className="space-y-3 mb-6">
+                                            <h4 className="font-black text-sm uppercase text-brutalist-red flex items-center gap-2">
+                                                <AlertTriangle size={16} />
+                                                Lies Detected
+                                            </h4>
+                                            {analysisResult.lies.map((lie, idx) => (
+                                                <div key={idx} className="bg-red-50 border-l-4 border-brutalist-red p-3">
+                                                    <p className="font-bold text-sm">{lie.skill}</p>
+                                                    <p className="text-xs text-gray-600 mt-1">Reality: {lie.reality}</p>
+                                                </div>
+                                            ))}
+                                        </div>
+
+                                        {/* Verdict */}
+                                        <div className="bg-brutalist-black text-white p-4 border-2 border-brutalist-black">
+                                            <p className="text-brutalist-yellow font-bold text-xs uppercase mb-2">Final Verdict</p>
+                                            <p className="text-sm">{analysisResult.verdict}</p>
+                                        </div>
                                     </motion.div>
                                 )}
                             </AnimatePresence>
@@ -180,7 +240,6 @@ export const ResumeUpload = () => {
                 </div>
             </section>
 
-            {/* Auth Modal */}
             <AuthModal
                 isOpen={showAuthModal}
                 onClose={() => setShowAuthModal(false)}

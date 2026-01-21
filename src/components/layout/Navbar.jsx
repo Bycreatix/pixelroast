@@ -109,12 +109,13 @@ export const Navbar = () => {
                                     <span className="max-w-[100px] truncate">{user.email}</span>
                                 </div>
                                 <motion.button
-                                    className="btn-brutal-primary px-4 py-2 text-sm flex items-center gap-2 bg-white hover:bg-red-50"
+                                    className="px-3 py-2 text-sm flex items-center gap-2 bg-white border-2 border-brutalist-black hover:bg-brutalist-red hover:text-white transition-colors"
                                     whileHover={{ scale: 1.05 }}
                                     whileTap={{ scale: 0.95 }}
                                     onClick={handleSignOut}
+                                    title="Sign Out"
                                 >
-                                    <LogOut size={16} />
+                                    <LogOut size={16} className="text-brutalist-black hover:text-white" />
                                 </motion.button>
                             </div>
                         ) : (
