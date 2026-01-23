@@ -6,6 +6,7 @@ import { Input } from '../components/ui/Input';
 import { cn } from '../utils';
 import { sendChatMessage } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
+import { useRoast } from '../contexts/RoastContext';
 import { AuthModal } from '../components/ui/AuthModal';
 
 // Premium 3-State Toggle Switch
@@ -85,6 +86,7 @@ export const ClapbackChat = () => {
     const [showAuthModal, setShowAuthModal] = useState(false);
 
     const { user } = useAuth();
+    const { latestRoast } = useRoast();
 
     const handleSend = async () => {
         if (!input.trim()) return;
@@ -107,7 +109,17 @@ export const ClapbackChat = () => {
                 content: m.content
             }));
 
-            const response = await sendChatMessage(userMessage, history, {}, personality);
+            // Pass the latest roast data as context for informed responses
+            const roastContext = latestRoast ? {
+                url: latestRoast.url,
+                roast: latestRoast.roast,
+                errors: latestRoast.errors,
+                fixes: latestRoast.fixes,
+                tier: latestRoast.tier,
+                personality: latestRoast.personality
+            } : {};
+
+            const response = await sendChatMessage(userMessage, history, roastContext, personality);
 
             setMessages(prev => [...prev, {
                 role: 'ai',

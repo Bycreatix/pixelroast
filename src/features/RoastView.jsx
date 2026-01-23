@@ -20,7 +20,7 @@ const DEMO_DATA = {
     ],
     tier: 'free',
     scans_used: 1,
-    scans_limit: 5
+    scans_limit: 20
 };
 
 // Helper to clean markdown code blocks from text

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { HeroSection } from '../features/HeroSection';
 import { PersonalitySelector } from '../features/PersonalitySelector';
 import { RoastView } from '../features/RoastView';
@@ -9,10 +9,19 @@ import { PricingSection } from '../features/PricingSection';
 import { Footer } from '../features/Footer';
 import { ScanHistory } from '../features/ScanHistory';
 import { useAuth } from '../contexts/AuthContext';
+import { useRoast } from '../contexts/RoastContext';
 
 const Home = () => {
     const [roastResult, setRoastResult] = useState(null);
     const { user } = useAuth();
+    const { setLatestRoast } = useRoast();
+
+    // Sync local roast result to global context for chat
+    useEffect(() => {
+        if (roastResult) {
+            setLatestRoast(roastResult);
+        }
+    }, [roastResult, setLatestRoast]);
 
     return (
         <div className="space-y-0">

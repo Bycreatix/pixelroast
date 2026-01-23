@@ -1,0 +1,43 @@
+# PixelRoast
+
+> Emotional Damage on Demand - AI-Powered Design Critique Tool
+
+## Overview
+PixelRoast is a brutal, AI-powered design critique tool that roasts websites and resumes with personality-driven feedback. Users submit portfolio URLs or resumes, and an AI "Senior Art Director" persona analyzes them using computer vision and LLMs. Feedback is delivered as a "Roast" - harsh, funny, but ultimately actionable advice.
+
+## Features
+- **Website Screenshot Analysis**: Captures full-page screenshots and analyzes UI/UX with AI vision models
+- **Three Personality Modes**: Gen Z Intern (slang-heavy), Boomer Boss (corporate jargon), Gordon Ramsay (pure rage)
+- **Tailwind CSS Fixes**: Every error comes with copy-paste Tailwind classes to fix the issue
+- **Interactive "Clapback Engine"**: Chat with the AI to argue, clarify, or get roasted further
+- **Resume Analysis**: PDF upload with PII redaction for resume reality checks
+
+## Tech Stack
+- **Frontend**: React 18 + Vite + Tailwind CSS (Neo-Brutalist Design)
+- **Backend**: FastAPI + Playwright (Chromium) + Groq AI
+- **Database**: Supabase (Auth + PostgreSQL)
+- **Cache/Rate Limiting**: Upstash Redis
+- **Hosting**: Cloudflare Pages (Frontend) + Hugging Face Spaces (Backend)
+
+## AI Models Used
+- **Vision (Free)**: meta-llama/llama-4-scout-17b-16e-instruct
+- **Vision (Premium)**: meta-llama/llama-4-maverick-17b-128e-instruct
+- **Chat**: llama-3.1-8b-instant (all tiers)
+- **Resume**: llama-3.3-70b-versatile (Free), moonshotai/kimi-k2-instruct (Premium)
+
+## API Endpoints
+- `POST /roast` - Analyze website design with AI vision
+- `POST /chat` - Interactive chat with roast context
+- `POST /scans` - Save roast to user history
+- `GET /scans` - Retrieve user's roast history
+- `DELETE /scans/{id}` - Delete a saved roast
+- `GET /health` - API health check
+
+## Rate Limits
+- **Free Tier**: 20 website roasts (lifetime), 1 request/60 seconds
+- **Premium Tier**: 50 roasts/day, no rate limit on requests
+- **Chat**: 10 messages/60 seconds (all tiers)
+
+## Links
+- Website: https://pixelroast.pages.dev
+- API: https://goat1242-pixelroast-app.hf.space

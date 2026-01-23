@@ -1,0 +1,84 @@
+# PixelRoast Architecture Schema
+
+## Project Structure
+
+```
+pixelroast/
+├── Frontend (React + Vite)
+│   ├── src/
+│   │   ├── App.jsx              # Main app with auth/roast providers
+│   │   ├── main.jsx             # Entry point
+│   │   ├── index.css            # Global styles (Neo-Brutalism theme)
+│   │   ├── contexts/
+│   │   │   ├── AuthContext.jsx  # Supabase auth state
+│   │   │   └── RoastContext.jsx # Global roast data for chat
+│   │   ├── features/
+│   │   │   ├── HeroSection.jsx  # URL input + roast trigger
+│   │   │   ├── RoastView.jsx    # Screenshot + errors display
+│   │   │   ├── ClapbackChat.jsx # Interactive AI chat
+│   │   │   ├── PricingSection.jsx
+│   │   │   ├── ScanHistory.jsx  # User's roast history
+│   │   │   ├── FixItButton.jsx  # Copy Tailwind fixes
+│   │   │   └── ...
+│   │   ├── components/ui/       # Reusable UI components
+│   │   ├── services/api.js      # Backend API client
+│   │   └── lib/supabase.js      # Supabase client setup
+│   ├── public/
+│   │   ├── favicon.png          # Fire emoji icon
+│   │   ├── llms.txt             # AI discoverability
+│   │   └── schema.txt           # This file
+│   └── index.html
+│
+├── Backend (FastAPI - Python)
+│   ├── app.py                   # All endpoints in single file
+│   │   ├── Rate Limiting        # Redis sliding window
+│   │   ├── Model Routing        # Free vs Premium models
+│   │   ├── Personality Engine   # Gen Z, Boomer, Ramsay prompts
+│   │   └── Screenshot Capture   # Playwright Chromium
+│   ├── requirements.txt
+│   └── Dockerfile               # For HF Spaces deployment
+│
+└── Database (Supabase PostgreSQL)
+    └── scan_history table
+```
+
+## Database Schema
+
+### scan_history
+| Column      | Type      | Description                    |
+|------------|-----------|--------------------------------|
+| id         | uuid      | Primary key                    |
+| user_id    | uuid      | Foreign key to auth.users      |
+| url        | text      | Roasted website URL            |
+| roast_data | jsonb     | Full roast response (no image) |
+| personality| text      | gen_z, boomer, or ramsay       |
+| created_at | timestamp | Auto-generated                 |
+
+### RLS Policies
+- Users can only read/write their own scans
+- Unauthenticated users cannot access scan_history
+
+## API Data Flow
+
+1. **User submits URL** → Frontend sends to `/roast`
+2. **Backend captures screenshot** → Playwright (Chromium headless)
+3. **AI analyzes image** → Groq Vision API (Scout or Maverick)
+4. **Response returned** → critique, errors, fixes, base64 screenshot
+5. **Frontend displays** → RoastView with Scorecard
+6. **User chats** → `/chat` with full roast_context injected into system prompt
+7. **History saved** → `scan_history` table (screenshot excluded for size)
+
+## Environment Variables
+
+### Frontend (.env)
+- `VITE_API_URL` - Backend URL
+- `VITE_SUPABASE_URL` - Supabase project URL
+- `VITE_SUPABASE_ANON_KEY` - Supabase anonymous key
+
+### Backend (HF Spaces Secrets)
+- `GROQ_API_KEY` - Groq API for AI models
+- `SUPABASE_URL` - Supabase project URL
+- `SUPABASE_ANON_KEY` - Supabase service role key
+- `UPSTASH_REDIS_REST_URL` - Redis for rate limiting
+- `UPSTASH_REDIS_REST_TOKEN` - Redis auth token
+- `FRONTEND_URL` - CORS allowed origin

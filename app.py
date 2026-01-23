@@ -234,7 +234,7 @@ def check_scan_limit(ip: str, user_id: Optional[str], is_premium: bool) -> tuple
             ttl = 86400  # Reset daily
         else:
             key = f"{REDIS_PREFIX}scans:free:{ip}"
-            limit = 5
+            limit = 20
             ttl = None  # Never expires (lifetime limit for free)
         
         current = int(redis_client.get(key) or 0)

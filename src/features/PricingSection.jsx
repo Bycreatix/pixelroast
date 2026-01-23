@@ -86,7 +86,7 @@ export const PricingSection = () => {
             icon: Flame,
             accentColor: 'bg-brutalist-red',
             features: [
-                '5 Website Roasts (Lifetime)',
+                '20 Website Roasts (Lifetime)',
                 'Gen Z & Boomer Personas',
                 'Basic Tailwind CSS Fixes',
                 'Clapback Chat (10 msgs/min)',
