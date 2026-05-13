@@ -1,0 +1,4 @@
+Copyright (c) 2026 [Bycreatix]
+
+All rights reserved.
+This code is proprietary and confidential. No part of this repository may be copied, modified, distributed, or used without explicit written permission from the owner.

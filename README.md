@@ -28,39 +28,6 @@ Submit your portfolio or website. Our AI will roast it with the brutal honesty y
 - **Groq API** - Llama 4 Vision for AI analysis
 - **Upstash Redis** - Rate limiting & caching
 - **Supabase** - Auth & database
-
-## 🚀 Live Demo
-
-- **Frontend**: [pixelroast.pages.dev](https://pixelroast.pages.dev)
-- **Backend API**: [goat1242-pixelroast-app.hf.space](https://goat1242-pixelroast-app.hf.space)
-
-## 📦 Quick Start
-
-### Frontend (Local Development)
-
-```bash
-# Clone the repo
-git clone https://github.com/goat1242/pixelroast.git
-cd pixelroast
-
-# Install dependencies
-npm install
-
-# Create .env file
-echo "VITE_API_URL=https://goat1242-pixelroast-app.hf.space" > .env
-
-# Run dev server
-npm run dev
-```
-
-### Backend (Hugging Face Spaces)
-
-The backend is deployed on Hugging Face Spaces. To deploy your own:
-
-1. Create a new Space (Docker SDK)
-2. Push `app.py`, `requirements.txt`, `Dockerfile`
-3. Add secrets: `GROQ_API_KEY`, `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`, `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `FRONTEND_URL`
-
 ## 🔒 Security
 
 - ✅ CORS whitelist (no wildcard)
@@ -112,7 +79,7 @@ Neo-brutalist design with:
 
 ## 📝 License
 
-MIT License - feel free to roast responsibly.
+All rights reserved.
 
 ---
 
